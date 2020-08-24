@@ -54,7 +54,11 @@ router.post(
       const post = await newPost.save();
 
       // return the post to the client (react)
-      res.json(post);
+      res.status(200).json({
+        success: true,
+        data: post,
+        error: null,
+      });
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server Error');
@@ -68,7 +72,11 @@ router.post(
 router.get('/', auth, async (req, res) => {
   try {
     const posts = await Post.find().sort({ data: -1 });
-    res.json(posts);
+    res.status(200).json({
+      success: true,
+      data: posts,
+      error: null,
+    });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
