@@ -67,16 +67,18 @@ app.use('/api/v1/bootcamps', bootcamps);
 // Define port remotely and locally
 const PORT = process.env.PORT || 5000;
 
-// Simple log middleware example
-// All middleware functions take 3 arguments `req`, `res` and `next`
-// We set a value on the request object (req) that we can then access on any routes that COME AFTER THIS middleware
-// Don't forget to call `next()`
-// In every middleware that you run you need to call `next()` in the body of the middleware function
 
-// Show log that Express is running
-app.listen(PORT, () =>
-  console.log(
-    `Serveri running in ${process.env.NODE_ENV} mode and is listening on port ${PORT}`
-      .yellow.bold
-  )
+// So we can close the server and stop our app if we get this unhandled rejection
+// We do this because if our Database isn't working we don't want our app to work
+const server = app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 );
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err, promise) => {
+  console.log(`Error: ${err.message}`);
+
+  // Close server & exit process
+  server.close(() => process.exit(1));
+});
