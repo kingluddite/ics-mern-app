@@ -5,6 +5,7 @@ const express = require('express');
 const morgan = require('morgan');
 // Add colors for useful terminal feedback
 const colors = require('colors'); // eslint-disable-line no-unused-vars
+const error = require('./middleware/error'); // custom error handler
 const connectDb = require('./config/db');
 // Route files
 // Route authentication
@@ -63,6 +64,12 @@ app.use('/api/v1/posts', posts);
 app.use('/api/v1/apps', apps);
 app.use('/api/v1/profiles', profiles);
 app.use('/api/v1/bootcamps', bootcamps);
+
+// IMPORTANT! If you want to execute our middleware in our controller methods it has to come after where we mount our router
+// middleware is executed in a linear order
+// If you put your middleware above mounted routed resources  line it won't catch it
+// Custom Error handler
+app.use(error);
 
 // Define port remotely and locally
 const PORT = process.env.PORT || 5000;

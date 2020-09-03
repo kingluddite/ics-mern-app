@@ -1,12 +1,15 @@
 const Bootcamp = require('../models/Bootcamp');
+const ErrorResponse = require('../utils/error-response');
 
 // @desc     Get bootcamp
 // @route    GET /api/v1/bootcamps/:id
 // @access   Public
 exports.getBootcamp = async (req, res, next) => {
+  const { id: bootcampIdReq } = req.params;
+
   try {
-    const { id: bootcampIdReq } = req.params;
     const bootcamp = await Bootcamp.findById(bootcampIdReq);
+
     // search for a correctly formatted id but doesn't exist in our Database generate an error
     if (!bootcamp) {
       // IMPORTANT! You can't send 2 responses so you need to return the first one so it won't go to the 2nd one
@@ -15,7 +18,11 @@ exports.getBootcamp = async (req, res, next) => {
 
     res.status(200).json({ success: true, data: bootcamp });
   } catch (err) {
-    res.status(400).json({ success: false });
+    // return res.status(400).json({ success: false });
+    // next(err); // call our built-in Express error handler
+    next(
+      new ErrorResponse(`Bootcamp not found with id of ${bootcampIdReq}`, 404)
+    );
   }
 };
 
@@ -32,14 +39,9 @@ exports.getBootcamps = async (req, res, next) => {
       .status(200)
       .json({ success: true, count: bootcamps.length, data: bootcamps });
   } catch (err) {
-    res.status(400).json({ success: false });
+    // return res.status(400).json({ success: false });
+    next(new ErrorResponse(`No bootcamps found`, 404));
   }
-  res.status(200).json({
-    success: true,
-    msg: 'Show all bootcamps',
-    error: null,
-    // greeting: req.greeting,
-  });
 };
 
 // @desc    Create a bootcamp
@@ -58,9 +60,10 @@ exports.createBootcamp = async (req, res, next) => {
   } catch (err) {
     // Above is the easiest way to handle errors
     // - But we'll refactor to make our code more efficient and save us time when we add new things
-    console.error(err.message);
+    // console.error(err.message);
     // 400 means client error ---> they sent bad request
-    res.status(400).json({ success: false });
+    // res.status(400).json({ success: false });
+    next(`A bootcamp could not be created`, 404);
   }
 };
 
@@ -91,8 +94,9 @@ exports.updateBootcamp = async (req, res, next) => {
       data: bootcamp,
     });
   } catch (err) {
-    console.error(err.message);
-    res.status(400).json({ success: false });
+    // console.error(err.message);
+    // res.status(400).json({ success: false });
+    next(`A bootcamp with the id ${req.params.id} could not be updated`, 404);
   }
 };
 
@@ -109,6 +113,12 @@ exports.deleteBootcamp = async (req, res, next) => {
 
     res.status(200).json({ success: true, data: bootcamp });
   } catch (err) {
-    res.status(400).json({ success: false });
+    // res.status(400).json({ success: false });
+    next(
+      new ErrorResponse(
+        `A bootcamp with the id ${req.params.id} could not be deleted`,
+        404
+      )
+    );
   }
 };
