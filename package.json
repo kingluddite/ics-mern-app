@@ -25,7 +25,6 @@
     "prettier": "^1.19.1"
   },
   "dependencies": {
-    "morgan": "^1.10.0",
     "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
@@ -34,6 +33,9 @@
     "express-validator": "^6.6.0",
     "gravatar": "^1.8.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.9.23"
+    "mongoose": "^5.9.23",
+    "morgan": "^1.10.0",
+    "node-geocoder": "^3.27.0",
+    "slugify": "^1.4.5"
   }
 }
