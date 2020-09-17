@@ -32,4 +32,7 @@ const AppSchema = new mongoose.Schema({
   notes: {
     type: String,
   },
+}, {
+  toJSON: {virtuals: true},
+  toObject: {virtuals: true}
 });
