@@ -1,95 +1,29 @@
 const express = require('express');
-const { check, validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const auth = require('../../../middleware/auth');
-// Add our Models
-const User = require('../../../models/User');
+const {register, login, getMe, forgotPassword, resetPassword, updateDetails, updatePassword} = require('../../../controllers/auth');
+
+const {protect} = require('../../../middleware/auth');
 
 const router = express.Router();
 
-// @route.    GET api/v1/auth
-// @desc.     Get user by token
-// @access.   PRIVATE
-router.get('/', auth, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select('-hashed_password');
-    res.json(user);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
-  }
-});
+// /api/v1/auth/register
+router.post('/register', register);
 
-// @route.    POST api/v1/auth
-// @desc.     Authenticate user and get token (login)
-// @access.   PUBLIC
-router.post(
-  '/',
-  [
-    check('email', 'Please include valid email').isEmail(),
-    check('password', 'Please enter a password').exists(),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      // return server error and errors
-      return res.status(400).json({ error: errors.array() });
-    }
+// /api/v1/auth/login
+router.post('/login', login);
 
-    const { email, password } = req.body;
+// /api/v1/auth/me
+router.get('/me', protect, getMe);
 
-    try {
-      // Check first if the user already exists
-      const user = await User.findOne({ email });
+// /api/v1/auth/me
+router.put('/updatedetails', protect, updateDetails);
 
-      if (!user) {
-        return res.status(400).json({
-          errors: [
-            {
-              msg: 'Invalid Credentials',
-            },
-          ],
-        });
-      }
+// /api/v1/auth/updatepassword
+router.put('/updatepassword', protect, updatePassword);
 
-      // Check if password matches
-      const isMatch = await bcrypt.compare(password, user.hashed_password);
+// /api/v1/auth/forgotpassword
+router.post('/forgotpassword', forgotPassword);
 
-      if (!isMatch) {
-        return res.status(400).json({
-          errors: [
-            {
-              msg: 'Invalid Credentials',
-            },
-          ],
-        });
-      }
-
-      // RETURN JWT (JSONWEBTOKEN)
-      // Create payload and put user "id" inside it
-      const payload = {
-        user: {
-          id: user.id,
-        },
-      };
-      // Sign the token
-      jwt.sign(
-        payload,
-        process.env.JWT_SECRET,
-        {
-          expiresIn: 360000,
-        },
-        (err, token) => {
-          if (err) throw err;
-          res.json({ token });
-        }
-      );
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send(`Server error`);
-    }
-  }
-);
+// /api/v1/auth/resetpassword/:resettoken
+router.put('/resetpassword/:resettoken', resetPassword);
 
 module.exports = router;
