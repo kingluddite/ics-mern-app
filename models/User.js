@@ -24,7 +24,7 @@ const UserSchema = new mongoose.Schema({
   },
   hashed_password: {
     type: String,
-    required: [true, 'Please enter a passord'],
+    required: [true, 'Please enter a password'],
     minlength: 6,
     select: false
   },

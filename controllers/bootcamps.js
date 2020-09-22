@@ -10,7 +10,7 @@ const geocoder = require('../utils/geocoder');
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
 
     // When we get all bootcamps let's also get back the length of the bootcamps
-    // We'll include our pagination object in our reponse
+    // We'll include our pagination object in our response
     res
         .status(200)
         .json(res.advancedResults);
