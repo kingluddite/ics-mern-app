@@ -1,7 +1,7 @@
 const express = require('express');
-const {register, login, getMe, forgotPassword, resetPassword, updateDetails, updatePassword} = require('../../../controllers/auth');
+const { register, login, getMe, forgotPassword, resetPassword, updateDetails, updatePassword, logout } = require('../../../controllers/auth');
 
-const {protect} = require('../../../middleware/auth');
+const { protect } = require('../../../middleware/auth');
 
 const router = express.Router();
 
@@ -10,6 +10,9 @@ router.post('/register', register);
 
 // /api/v1/auth/login
 router.post('/login', login);
+
+// /api/v1/auth/logout
+router.get('/logout', logout);
 
 // /api/v1/auth/me
 router.get('/me', protect, getMe);

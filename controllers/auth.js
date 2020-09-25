@@ -8,7 +8,7 @@ const sendEmail = require('../utils/sendEmail');
 // @route    POST /api/v1/auth/register
 // @access   Public
 exports.register = asyncHandler(async (req, res, next) => {
-    const {name, email, password, role} = req.body;
+    const { name, email, password, role } = req.body;
 
     // Create user
     const user = await User.create({
@@ -26,7 +26,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 // @route    POST /api/v1/auth/login
 // @access   Public
 exports.login = asyncHandler(async (req, res, next) => {
-    const {email, password} = req.body;
+    const { email, password } = req.body;
 
     // Validate email and password
     if (!email || !password) {
@@ -34,7 +34,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     }
 
     // Check for user and get the Database user password 
-    const user = await User.findOne({email}).select('+hashed_password');
+    const user = await User.findOne({ email }).select('+hashed_password');
 
     if (!user) {
         // No user then send "Unauthorized" 401 status
@@ -50,6 +50,21 @@ exports.login = asyncHandler(async (req, res, next) => {
     }
 
     sendTokenInCookieResponse(user, 200, res);
+});
+
+// @desc     Log user out / clear cookie
+// @route    GET /api/v1/auth/logout
+// @access   Private
+exports.logout = asyncHandler(async (req, res, next) => {
+    res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 2 * 1000),
+        httpOnly: true
+    })
+
+    res.status(200).json({
+        success: true,
+        data: {}
+    });
 });
 
 // @desc     Get current logged in user
@@ -114,7 +129,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
     const user = await User.findOne({
         resetPasswordToken,
-        resetPasswordExpire: {$gt: Date.now()}
+        resetPasswordExpire: { $gt: Date.now() }
     });
 
     // Check if user exists
@@ -140,7 +155,7 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 // @access   Public
 exports.forgotPassword = asyncHandler(async (req, res, next) => {
     // Get user by their email in the request body
-    const user = await User.findOne({email: req.body.email});
+    const user = await User.findOne({ email: req.body.email });
 
     // Check if user exists
     if (!user) {
@@ -150,7 +165,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
     // Get reset token
     const resetToken = user.getResetPasswordToken();
 
-    await user.save({validateBeforeSave: false});
+    await user.save({ validateBeforeSave: false });
 
     // Create reset url
     const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${resetToken}`;
@@ -174,7 +189,7 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
 
-        await user.save({validateBeforeSave: false});
+        await user.save({ validateBeforeSave: false });
 
         return next(new ErrorResponse('Email could not be sent', 500));
     }
